@@ -16,6 +16,7 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
   const pathname = usePathname()
 
   const isLoginPage = pathname === "/login"
+  const isAdminPage = pathname.startsWith("/adminbilla")
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -37,6 +38,18 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
         // Update localStorage with fresh data from database
         AccessKey.setCurrentUser(validatedUser)
         setUser(validatedUser)
+
+        // Check if user is trying to access wrong area
+        if (isAdminPage && validatedUser.type !== 'admin') {
+          // User trying to access admin area but is not admin
+          window.location.href = "/"
+          return
+        } else if (!isAdminPage && pathname === "/" && validatedUser.type === 'admin') {
+          // Admin trying to access user area, redirect to admin
+          window.location.href = "/adminbilla"
+          return
+        }
+
         setLoading(false)
       } catch (error) {
         console.error("Authentication validation failed:", error)
@@ -47,7 +60,7 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
     }
 
     checkAuth()
-  }, [isLoginPage])
+  }, [isLoginPage, isAdminPage, pathname])
 
   if (loading && !isLoginPage) {
     return <AdminLoading message="Verifying access..." />

@@ -31,7 +31,7 @@ export default function LoginPage() {
     try {
       const user = await AccessKey.authenticate(accessKey.trim())
 
-      console.log("[v0] Authentication successful, user:", user)
+      console.log("Authentication successful, user:", user)
 
       try {
         // Ensure we're on client side
@@ -40,7 +40,7 @@ export default function LoginPage() {
           try {
             localStorage.removeItem("authenticated_user")
           } catch (clearError) {
-            console.log("[v0] Could not clear localStorage:", clearError)
+            console.log("Could not clear localStorage:", clearError)
           }
 
           let storageSuccess = false
@@ -53,10 +53,10 @@ export default function LoginPage() {
             if (testRetrieve && JSON.parse(testRetrieve)) {
               storageSuccess = true
               storageMethod = "localStorage"
-              console.log("[v0] Successfully stored user in localStorage")
+              console.log("Successfully stored user in localStorage")
             }
           } catch (localStorageError) {
-            console.log("[v0] localStorage failed:", localStorageError)
+            console.log("localStorage failed:", localStorageError)
 
             // Fallback to sessionStorage
             try {
@@ -65,10 +65,10 @@ export default function LoginPage() {
               if (testRetrieve && JSON.parse(testRetrieve)) {
                 storageSuccess = true
                 storageMethod = "sessionStorage"
-                console.log("[v0] Successfully stored user in sessionStorage as fallback")
+                console.log("Successfully stored user in sessionStorage as fallback")
               }
             } catch (sessionStorageError) {
-              console.log("[v0] sessionStorage also failed:", sessionStorageError)
+              console.log("sessionStorage also failed:", sessionStorageError)
             }
           }
 
@@ -78,18 +78,18 @@ export default function LoginPage() {
 
           // Verify the storage worked with AccessKey.getCurrentUser()
           const verifiedUser = AccessKey.getCurrentUser()
-          console.log("[v0] Verified user via AccessKey.getCurrentUser():", verifiedUser)
+          console.log("Verified user via AccessKey.getCurrentUser():", verifiedUser)
 
           if (!verifiedUser) {
             throw new Error(`Failed to verify user storage using ${storageMethod}`)
           }
 
-          console.log("[v0] User successfully stored and verified using:", storageMethod)
+          console.log("User successfully stored and verified using:", storageMethod)
         } else {
           throw new Error("Window object not available")
         }
       } catch (storageError) {
-        console.error("[v0] Storage error:", storageError)
+        console.error("Storage error:", storageError)
         setError("লগইন সংরক্ষণে সমস্যা হয়েছে। ব্রাউজার সেটিংস চেক করুন অথবা আবার চেষ্টা করুন।")
         return
       }
@@ -97,8 +97,14 @@ export default function LoginPage() {
       // Add delay to ensure everything is properly set
       await new Promise((resolve) => setTimeout(resolve, 200))
 
-      console.log("[v0] Redirecting to /admin")
-      window.location.href = "/admin"
+      // Redirect based on user type
+      if (user.type === 'admin') {
+        console.log("Redirecting admin user to /adminbilla")
+        window.location.href = "/adminbilla"
+      } else {
+        console.log("Redirecting user to /")
+        window.location.href = "/"
+      }
     } catch (err: any) {
       console.error("Login error:", err)
       setError(err.message || "লগইন ব্যর্থ হয়েছে")

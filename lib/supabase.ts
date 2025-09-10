@@ -387,6 +387,73 @@ async function generateUserAgent() {
 export class AccessKey extends BaseEntity {
   static tableName = "access_keys"
 
+  // Generate a random access key
+  static generateRandomKey(): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    let result = ''
+    for (let i = 0; i < 32; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    return result
+  }
+
+  // Create a new access key
+  static async createAccessKey(data: {
+    access_key?: string
+    user_name: string
+    type: 'user' | 'admin'
+    expires_at?: string
+    is_active?: boolean
+  }) {
+    if (!isSupabaseAvailable()) {
+      throw new Error("Supabase not available")
+    }
+
+    const keyData = {
+      access_key: data.access_key || this.generateRandomKey(),
+      user_name: data.user_name,
+      type: data.type,
+      expires_at: data.expires_at || null,
+      is_active: data.is_active !== undefined ? data.is_active : true,
+      created_at: new Date().toISOString(),
+      last_login: null
+    }
+
+    console.log('Creating access key:', keyData)
+    
+    const { data: result, error } = await supabase!
+      .from(this.tableName)
+      .insert(keyData)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creating access key:', error)
+      throw error
+    }
+    
+    return result
+  }
+
+  // Update access key (admin can modify keys)
+  static async updateAccessKey(id: string, data: {
+    user_name?: string
+    type?: 'user' | 'admin'
+    expires_at?: string | null
+    is_active?: boolean
+  }) {
+    return this.update(id, data)
+  }
+
+  // Delete access key
+  static async deleteAccessKey(id: string) {
+    return this.delete(id)
+  }
+
+  // List all access keys (admin only)
+  static async listAllKeys() {
+    return this.list('-created_at')
+  }
   static async authenticate(accessKey: string) {
     if (!isSupabaseAvailable()) {
       throw new Error("Supabase not available")
@@ -398,7 +465,6 @@ export class AccessKey extends BaseEntity {
       .from(this.tableName)
       .select("*")
       .eq("access_key", accessKey)
-      .eq("is_active", true)
       .single()
 
     if (error || !user) {
@@ -406,6 +472,19 @@ export class AccessKey extends BaseEntity {
       throw new Error("Invalid access key")
     }
 
+    // Check if key is active
+    if (!user.is_active) {
+      throw new Error("Access key is deactivated")
+    }
+
+    // Check if key is expired
+    if (user.expires_at) {
+      const expiryDate = new Date(user.expires_at)
+      const now = new Date()
+      if (now > expiryDate) {
+        throw new Error("Access key has expired")
+      }
+    }
     // Update last login
     await this.update(user.id, { last_login: new Date().toISOString() })
 
@@ -430,17 +509,17 @@ export class AccessKey extends BaseEntity {
     if (storedUser) {
       try {
         const user = JSON.parse(storedUser)
-        console.log(`[v0] Retrieved user from ${storageType}:`, user)
+        console.log(`Retrieved user from ${storageType}:`, user)
         return user
       } catch (e) {
-        console.log(`[v0] Failed to parse user from ${storageType}, removing:`, e)
+        console.log(`Failed to parse user from ${storageType}, removing:`, e)
         // Clean up corrupted data from both storages
         localStorage.removeItem("authenticated_user")
         sessionStorage.removeItem("authenticated_user")
       }
     }
 
-    console.log("[v0] No user found in either localStorage or sessionStorage")
+    console.log("No user found in either localStorage or sessionStorage")
     return null
   }
 
@@ -478,12 +557,17 @@ export class AccessKey extends BaseEntity {
 
   static isAdmin(user?: any) {
     const currentUser = user || this.getCurrentUser()
-    return currentUser !== null // All authenticated users are admins
+    return currentUser?.type === 'admin' // Only admin type users are admins
   }
 
   static canGenerate(user?: any) {
     const currentUser = user || this.getCurrentUser()
-    return currentUser !== null // All authenticated users can generate unlimited
+    return currentUser?.type === 'user' || currentUser?.type === 'admin' // Both user and admin can generate
+  }
+
+  static isUser(user?: any) {
+    const currentUser = user || this.getCurrentUser()
+    return currentUser?.type === 'user'
   }
 }
 

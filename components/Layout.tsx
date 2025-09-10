@@ -30,22 +30,10 @@ const navigationItems = [
     description: "Generate user agents",
   },
   {
-    title: "iOS Admin Panel",
-    url: "/admin",
-    icon: Settings,
-    description: "Manage iOS configurations",
-  },
-  {
-    title: "Android Admin Panel",
-    url: "/admin-android",
-    icon: Smartphone,
-    description: "Manage Android configurations",
-  },
-  {
-    title: "Android insta Admin Panel",
-    url: "/admin-instagram",
-    icon: Instagram,
-    description: "Manage Instagram Android configurations",
+    title: "Admin Panel",
+    url: "/adminbilla",
+    icon: Shield,
+    description: "Unified admin management",
   },
 ]
 

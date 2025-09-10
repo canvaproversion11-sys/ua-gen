@@ -7,9 +7,10 @@ import AdminLoading from "@/components/AdminLoading"
 
 interface AuthGuardProps {
   children: React.ReactNode
+  requireAdmin?: boolean
 }
 
-export default function AuthGuard({ children }: AuthGuardProps) {
+export default function AuthGuard({ children, requireAdmin = false }: AuthGuardProps) {
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
 
@@ -26,6 +27,12 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         // Validate user key in database
         const validatedUser = await AccessKey.authenticate(currentUser.access_key)
 
+        // Check admin requirement
+        if (requireAdmin && validatedUser.type !== 'admin') {
+          console.error("Access denied: Admin privileges required")
+          AccessKey.logout()
+          return
+        }
         // Update localStorage with fresh data from database
         AccessKey.setCurrentUser(validatedUser)
 

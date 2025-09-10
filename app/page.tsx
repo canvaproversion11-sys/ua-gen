@@ -279,7 +279,15 @@ export default function UserAgentGenerator() {
 
     try {
       setIsLoadingHistory(true)
-      const historyData = await GenerationHistory.list()
+      
+      // Get current user's access key for filtering history
+      const currentUser = AccessKey.getCurrentUser()
+      if (!currentUser) return
+      
+      // Get only the current user's history
+      const historyData = await GenerationHistory.filter({ 
+        created_by: currentUser.access_key 
+      }, '-generated_at')
 
       const userHistory = historyData
         .sort((a, b) => new Date(b.generated_at).getTime() - new Date(a.generated_at).getTime())
@@ -889,12 +897,18 @@ export default function UserAgentGenerator() {
     if (!userAgents.length) return
 
     try {
+      const currentUser = AccessKey.getCurrentUser()
+      if (!currentUser) {
+        showModal("❌ অথেন্টিকেশন ত্রুটি!", "ব্যবহারকারী তথ্য পাওয়া যায়নি।", "error")
+        return
+      }
+
       const historyId = await GenerationHistory.create({
         app_type: appType,
         quantity: userAgents.length,
         user_agents: userAgents,
         is_downloaded: true,
-        created_by: accessKey?.access_key || "anonymous",
+        created_by: currentUser.access_key,
       })
 
       const text = userAgents.join("\n")
@@ -919,7 +933,7 @@ export default function UserAgentGenerator() {
       console.error("Error downloading file:", error)
       showModal("❌ এরর!", "ডাউনলোড করতে সমস্যা হয়েছে।", "error")
     }
-  }, [userAgents, appType, accessKey, showModal, loadHistory])
+  }, [userAgents, appType, showModal, loadHistory])
 
   const handleCopyAll = useCallback(async () => {
     if (userAgents.length === 0) return
@@ -928,12 +942,18 @@ export default function UserAgentGenerator() {
       const text = userAgents.join("\n")
       await navigator.clipboard.writeText(text)
 
+      const currentUser = AccessKey.getCurrentUser()
+      if (!currentUser) {
+        showModal("❌ অথেন্টিকেশন ত্রুটি!", "ব্যবহারকারী তথ্য পাওয়া যায়নি।", "error")
+        return
+      }
+
       const historyId = await GenerationHistory.create({
         app_type: appType,
         quantity: userAgents.length,
         user_agents: userAgents,
         is_downloaded: false,
-        created_by: accessKey?.access_key || "anonymous",
+        created_by: currentUser.access_key,
       })
 
       showModal("✅ কপি সফল!", `${userAgents.length}টি ইউজার এজেন্ট সফলভাবে কপি করা হয়েছে।`, "success", async () => {
@@ -947,7 +967,7 @@ export default function UserAgentGenerator() {
       console.error("Error copying to clipboard:", error)
       showModal("❌ এরর!", "কপি করতে সমস্যা হয়েছে।", "error")
     }
-  }, [userAgents, appType, accessKey, showModal, loadHistory])
+  }, [userAgents, appType, showModal, loadHistory])
 
   const copyToClipboard = useCallback((text, index) => {
     navigator.clipboard.writeText(text)
