@@ -461,16 +461,22 @@ export class AccessKey extends BaseEntity {
 
     console.log("Authenticating with key:", accessKey)
 
-    const { data: user, error } = await supabase!
+    const { data, error } = await supabase!
       .from(this.tableName)
       .select("*")
       .eq("access_key", accessKey)
-      .single()
 
-    if (error || !user) {
+    if (error) {
       console.error("Authentication failed:", error)
       throw new Error("Invalid access key")
     }
+
+    if (!data || data.length === 0) {
+      console.error("Authentication failed: No matching access key found")
+      throw new Error("Invalid access key")
+    }
+
+    const user = data[0]
 
     // Check if key is active
     if (!user.is_active) {
