@@ -492,7 +492,6 @@ export class AccessKey extends BaseEntity {
       }
     }
     // Update last login
-    await this.update(user.id, { last_login: new Date().toISOString() })
 
     console.log("Authentication successful:", user)
     return user
