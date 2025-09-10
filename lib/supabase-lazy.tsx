@@ -1,0 +1,15 @@
+export {
+  DeviceModel,
+  IOSVersion,
+  AppVersion,
+  Configuration,
+  GenerationHistory,
+  BlacklistedUserAgent,
+  AndroidDeviceModel,
+  AndroidBuildNumber,
+  AndroidAppVersion,
+  InstagramDeviceModel,
+  InstagramVersion,
+  ChromeVersion,
+  ResolutionDpi,
+} from "./supabase"
