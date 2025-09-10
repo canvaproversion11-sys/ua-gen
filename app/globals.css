@@ -1,0 +1,246 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* Enhanced font rendering and performance optimizations */
+    font-display: swap;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Prevent layout shifts */
+    overflow-x: hidden;
+    /* Optimize scrolling performance */
+    scroll-behavior: smooth;
+  }
+}
+
+/* Optimized shimmer animation for loading states */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
+  will-change: transform;
+  contain: layout style paint;
+}
+
+/* Hardware-accelerated pulse animation */
+@keyframes pulse-optimized {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.05);
+  }
+}
+
+.animate-pulse {
+  animation: pulse-optimized 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: opacity, transform;
+  contain: layout style paint;
+}
+
+/* Optimized spin animation for loaders */
+@keyframes spin-optimized {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin-optimized 1s linear infinite;
+  will-change: transform;
+  contain: layout style paint;
+}
+
+/* Optimized scrollbar with hardware acceleration */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-100 dark:bg-slate-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 dark:bg-slate-600 rounded-full;
+  will-change: background-color;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400 dark:bg-slate-500;
+}
+
+/* Critical CSS for above-the-fold content with better performance */
+@layer components {
+  .hero-section {
+    @apply min-h-screen p-4 md:p-6;
+    background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #f1f5f9 100%);
+    contain: layout style paint;
+    will-change: transform;
+  }
+
+  .dark .hero-section {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%);
+  }
+
+  .card-optimized {
+    @apply backdrop-blur-sm border-0 shadow-xl;
+    background: rgba(255, 255, 255, 0.8);
+    contain: layout style;
+    will-change: transform;
+  }
+
+  .dark .card-optimized {
+    background: rgba(30, 41, 59, 0.8);
+  }
+
+  .button-primary {
+    @apply shadow-lg;
+    background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
+    contain: layout style;
+    will-change: transform;
+    /* Prevent layout shifts on hover */
+    transform: translateZ(0);
+  }
+
+  .button-primary:hover {
+    background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
+    transform: translateZ(0) scale(1.02);
+  }
+
+  .dark .button-primary {
+    background: linear-gradient(135deg, #4338ca 0%, #1d4ed8 100%);
+  }
+
+  .dark .button-primary:hover {
+    background: linear-gradient(135deg, #3730a3 0%, #1e40af 100%);
+  }
+}
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-shimmer,
+  .animate-pulse,
+  .animate-spin {
+    animation: none !important;
+  }
+}
+
+/* Optimize for better paint performance and prevent layout shifts */
+.group:hover .group-hover\:opacity-100 {
+  will-change: opacity;
+  contain: layout style;
+}
+
+.transition-all {
+  will-change: transform, opacity;
+  contain: layout style;
+}
+
+/* Optimize hover states to prevent repaints */
+.hover\:shadow-lg:hover {
+  will-change: box-shadow;
+  contain: layout style;
+}
+
+.hover\:border-indigo-300:hover {
+  will-change: border-color;
+  contain: layout style;
+}
+
+/* Optimize focus states for better accessibility */
+.focus\:ring-2:focus {
+  will-change: box-shadow;
+  contain: layout style;
+}
+
+/* Prevent layout shifts in loading states */
+.loading-skeleton {
+  min-height: 2rem;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  background-size: 200% 100%;
+  contain: layout style paint;
+}
+
+/* Optimize backdrop blur for better performance */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  will-change: backdrop-filter;
+  contain: layout style;
+}
