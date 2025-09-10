@@ -18,30 +18,8 @@ const ClientLayout = memo(({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname()
 
   const isLoginPage = pathname === "/login"
-  const isGeneratorPage = pathname === "/"
-  const isAdminPath = pathname.startsWith("/admin")
 
-  // Generator page - no auth, no layout (standalone)
-  if (isGeneratorPage) {
-    return <>{children}</>
-  }
-
-  // Login page - no auth, no layout
-  if (isLoginPage) {
-    return <>{children}</>
-  }
-
-  // Admin pages - require auth and layout
-  if (isAdminPath) {
-    return (
-      <AuthWrapper>
-        <Layout>{children}</Layout>
-      </AuthWrapper>
-    )
-  }
-
-  // Other pages - no auth, no layout (like 404)
-  return <>{children}</>
+  return <AuthWrapper>{isLoginPage ? children : <Layout>{children}</Layout>}</AuthWrapper>
 })
 
 ClientLayout.displayName = "ClientLayout"

@@ -129,7 +129,8 @@ const nextConfig = {
     }
 
     if (!dev) {
-      // Let Next.js handle optimization automatically
+      config.optimization.providedExports = true
+      config.optimization.sideEffects = false
     }
     
     return config

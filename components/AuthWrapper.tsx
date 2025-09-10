@@ -16,11 +16,10 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
   const pathname = usePathname()
 
   const isLoginPage = pathname === "/login"
-  const isGeneratorPage = pathname === "/"
 
   useEffect(() => {
     const checkAuth = async () => {
-      if (isLoginPage || isGeneratorPage) {
+      if (isLoginPage) {
         setLoading(false)
         return
       }
@@ -50,7 +49,7 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
     checkAuth()
   }, [isLoginPage])
 
-  if (loading && !isLoginPage && !isGeneratorPage) {
+  if (loading && !isLoginPage) {
     return <AdminLoading message="Verifying access..." />
   }
 
